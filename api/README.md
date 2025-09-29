@@ -244,7 +244,3 @@ Android no conecta a localhost → usa http://10.0.2.2:4000 o ngrok.
 
 📄 Licencia
 Uso interno / educativo. Adáptalo a tu licencia preferida.
-
-makefile
-Copiar código
-::contentReference[oaicite:0]{index=0}
