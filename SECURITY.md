@@ -1,5 +1,5 @@
 ```
-## SECURITY.md
+# SECURITY.md
 
 ### 1) Principios de seguridad aplicados
 - Uso de **HTTPS** para todo el tráfico (TLS 1.2+).
