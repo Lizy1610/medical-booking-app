@@ -28,9 +28,6 @@ authMiddleware.js
 package.json
 README.md
 
-shell
-Copiar código
-
 > Asegúrate de ignorar secretos:
 >
 > ```gitignore
@@ -53,8 +50,6 @@ npm i
 🗄️ Configuración de base de datos
 Ejecuta una sola vez en MySQL (Workbench o consola):
 
-sql
-Copiar código
 CREATE DATABASE IF NOT EXISTS medapp
   CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE medapp;
@@ -75,8 +70,6 @@ CREATE TABLE IF NOT EXISTS users (
 🔐 Variables de entorno
 Crea un archivo .env en backend/:
 
-ini
-Copiar código
 PORT=4000
 NODE_ENV=development
 
@@ -97,8 +90,6 @@ CORS_ORIGIN=*
 🔒 Certificados (opcional, solo para HTTPS local)
 Git Bash / WSL / macOS / Linux:
 
-bash
-Copiar código
 mkdir -p certs
 MSYS2_ARG_CONV_EXCL='*' openssl req -x509 -newkey rsa:2048 -nodes \
   -keyout certs/key.pem -out certs/cert.pem \
@@ -107,8 +98,6 @@ MSYS2_ARG_CONV_EXCL='*' openssl req -x509 -newkey rsa:2048 -nodes \
 Si no generas certificados, el servidor usará HTTP automáticamente.
 
 ▶️ Ejecutar
-bash
-Copiar código
 # desarrollo
 npm run dev
 
@@ -126,8 +115,6 @@ Android no confía en certificados auto-firmados: usa HTTP o un túnel como ngro
 
 ngrok (opcional)
 
-bash
-Copiar código
 ngrok http 4000
 # usa la URL https://xxxxx.ngrok-free.app en la app móvil
 🔌 Endpoints
@@ -136,8 +123,6 @@ Base URL: http://localhost:4000 (ajusta según tu entorno)
 POST /api/auth/register
 Body (JSON):
 
-json
-Copiar código
 {
   "name": "Ana Torres",
   "username": "ana.torres",
@@ -151,13 +136,9 @@ Respuestas: 201 Created o errores de validación/duplicados.
 POST /api/auth/login
 Body (JSON):
 
-json
-Copiar código
 { "email": "ana@example.com", "password": "Secreta123!" }
 Respuesta:
 
-json
-Copiar código
 {
   "token": "JWT_AQUI",
   "user": {
@@ -172,8 +153,6 @@ Copiar código
 GET /api/me
 Headers:
 
-makefile
-Copiar código
 Authorization: Bearer <token>
 Devuelve los datos del usuario autenticado.
 
@@ -202,12 +181,10 @@ jsonwebtoken – JWT
 https / fs – soporte HTTPS local
 
 🤝 Integración con React Native (Expo)
-ts
-Copiar código
+
 // api.ts
 export const API_BASE = __DEV__ ? "http://10.0.2.2:4000" : "https://tu-dominio.com";
-ts
-Copiar código
+
 // authStorage.ts
 import * as SecureStore from "expo-secure-store";
 
@@ -216,8 +193,7 @@ export const saveToken = (t: string) =>
 
 export const getToken = () => SecureStore.getItemAsync("auth_token");
 export const clearToken = () => SecureStore.deleteItemAsync("auth_token");
-ts
-Copiar código
+
 // authApi.ts
 import { API_BASE } from "./api";
 import { saveToken, getToken } from "./authStorage";
