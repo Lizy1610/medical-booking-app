@@ -1,5 +1,5 @@
-```
-# SECURITY.md
+
+## SECURITY.md
 
 ### 1) Principios de seguridad aplicados
 - Uso de **HTTPS** para todo el tráfico (TLS 1.2+).
@@ -36,4 +36,4 @@
 - No incluir tokens en URLs ni parámetros de navegación.
 - Mantener dependencias actualizadas y auditar vulnerabilidades periódicamente.
 - Revisar PRs con checklist de seguridad: sin secretos, sin logs sensibles, permisos mínimos, manejo de errores de red, dependencias revisadas.
-```
+
