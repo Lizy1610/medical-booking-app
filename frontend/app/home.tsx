@@ -294,6 +294,7 @@ export default function HomeScreen() {
       </ScrollView>
       <View style={s.bottomNav}>
         <TouchableOpacity style={s.tabButton} activeOpacity={0.8}>
+        <TouchableOpacity style={s.tabButton} activeOpacity={0.8} onPress={() => router.push("/home")}>
           <View style={s.tabIconActiveBg}>
             <Ionicons name="home" size={18} color="#111827" />
           </View>
@@ -304,6 +305,11 @@ export default function HomeScreen() {
         </TouchableOpacity>
 
         <TouchableOpacity style={s.tabButton} activeOpacity={0.8}>
+        <TouchableOpacity style={s.tabButton} activeOpacity={0.8} onPress={() => router.push("/location")}>
+          <Ionicons name="location-outline" size={22} color="#9CA3AF" />
+        </TouchableOpacity>
+
+        <TouchableOpacity style={s.tabButton} activeOpacity={0.8} onPress={() => router.push("/bookings")}>
           <Ionicons name="calendar-outline" size={22} color="#9CA3AF" />
         </TouchableOpacity>
 
@@ -551,4 +557,5 @@ const s = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+});
 });
