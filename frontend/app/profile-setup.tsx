@@ -16,10 +16,57 @@ import {
   Pressable,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useFonts, Poppins_400Regular, Poppins_600SemiBold, Poppins_700Bold } from "@expo-google-fonts/poppins";
+import {
+  useFonts,
+  Poppins_400Regular,
+  Poppins_600SemiBold,
+  Poppins_700Bold,
+} from "@expo-google-fonts/poppins";
 import * as ImagePicker from "expo-image-picker";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { router } from "expo-router";
+
+function ResultModal({
+  visible,
+  type,
+  title,
+  subtitle,
+  primaryLabel,
+  onPrimary,
+  onRequestClose,
+}: {
+  visible: boolean;
+  type: "success" | "error";
+  title: string;
+  subtitle?: string;
+  primaryLabel: string;
+  onPrimary: () => void;
+  onRequestClose: () => void;
+}) {
+  const isSuccess = type === "success";
+  const iconBg = isSuccess ? "#A7D7C5" : "#FEE2E2";
+  const iconColor = isSuccess ? "#0F172A" : "#B91C1C";
+
+  return (
+    <Modal transparent visible={visible} animationType="fade" onRequestClose={onRequestClose}>
+      <Pressable style={m.overlay} onPress={onRequestClose}>
+        <Pressable style={m.card} onPress={() => {}}>
+          <View style={[m.iconCircle, { backgroundColor: iconBg }]}>
+            <Ionicons name={isSuccess ? "checkmark" : "alert"} size={36} color={iconColor} />
+          </View>
+
+          <Text style={m.title}>{title}</Text>
+          {!!subtitle && <Text style={m.subtitle}>{subtitle}</Text>}
+
+          <TouchableOpacity style={m.primaryBtn} onPress={onPrimary} activeOpacity={0.9}>
+            <Text style={m.primaryText}>{primaryLabel}</Text>
+          </TouchableOpacity>
+
+        </Pressable>
+      </Pressable>
+    </Modal>
+  );
+}
 
 export default function ProfileSetupScreen() {
   const params = useLocalSearchParams<{ name?: string; email?: string; password?: string }>();
@@ -30,6 +77,10 @@ export default function ProfileSetupScreen() {
   const [genderOpen, setGenderOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [avatarUri, setAvatarUri] = useState<string | null>(null);
+
+  const [successOpen, setSuccessOpen] = useState(false);
+  const [errorOpen, setErrorOpen] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string>("");
 
   const [fontsLoaded] = useFonts({
     Poppins_400Regular,
@@ -53,8 +104,17 @@ export default function ProfileSetupScreen() {
   };
 
   const onSave = async () => {
-    if (!params.name || !params.email || !params.password) return;
-    if (!nick) return;
+    if (!params.name || !params.email || !params.password) {
+      setErrorMsg("Faltan datos requeridos del primer paso.");
+      setErrorOpen(true);
+      return;
+    }
+    if (!nick) {
+      setErrorMsg("Por favor, ingresa tu apodo.");
+      setErrorOpen(true);
+      return;
+    }
+
     setLoading(true);
     try {
       const payload = {
@@ -66,9 +126,14 @@ export default function ProfileSetupScreen() {
         gender: (gender || undefined) as any,
       };
       await register(payload);
-      router.replace("/login");
+
+      setSuccessOpen(true);
     } catch (e) {
-      alert((e as Error).message);
+      const msg =
+        (e as any)?.message ||
+        "Ocurrió un problema al registrar tu cuenta. Inténtalo de nuevo.";
+      setErrorMsg(msg);
+      setErrorOpen(true);
     } finally {
       setLoading(false);
     }
@@ -76,9 +141,15 @@ export default function ProfileSetupScreen() {
 
   return (
     <SafeAreaView style={styles.safe}>
-      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={styles.flex}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+        style={styles.flex}
+      >
         <View style={styles.headerRow}>
-          <TouchableOpacity onPress={() => router.back()} hitSlop={{ top: 12, right: 12, bottom: 12, left: 12 }}>
+          <TouchableOpacity
+            onPress={() => router.back()}
+            hitSlop={{ top: 12, right: 12, bottom: 12, left: 12 }}
+          >
             <Ionicons name="chevron-back" size={24} color="#111827" />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Completa tu perfil</Text>
@@ -115,8 +186,17 @@ export default function ProfileSetupScreen() {
               />
             </View>
 
-            <TouchableOpacity style={styles.inputWrapper} onPress={() => setShowDate(true)} activeOpacity={0.9}>
-              <Ionicons name="calendar-clear-outline" size={18} color="#9AA3AF" style={styles.leftIcon} />
+            <TouchableOpacity
+              style={styles.inputWrapper}
+              onPress={() => setShowDate(true)}
+              activeOpacity={0.9}
+            >
+              <Ionicons
+                name="calendar-clear-outline"
+                size={18}
+                color="#9AA3AF"
+                style={styles.leftIcon}
+              />
               <View pointerEvents="none">
                 <TextInput
                   placeholder="Fecha de nacimiento"
@@ -128,7 +208,11 @@ export default function ProfileSetupScreen() {
               </View>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.inputWrapper} onPress={() => setGenderOpen(true)} activeOpacity={0.9}>
+            <TouchableOpacity
+              style={styles.inputWrapper}
+              onPress={() => setGenderOpen(true)}
+              activeOpacity={0.9}
+            >
               <View pointerEvents="none">
                 <TextInput
                   placeholder="Género"
@@ -141,8 +225,15 @@ export default function ProfileSetupScreen() {
               <Ionicons name="chevron-down" size={18} color="#9AA3AF" style={styles.rightIcon} />
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.primaryBtn} onPress={onSave} activeOpacity={0.85}>
-              <Text style={styles.primaryBtnText}>Guardar</Text>
+            <TouchableOpacity
+              style={[styles.primaryBtn, loading && { opacity: 0.7 }]}
+              onPress={onSave}
+              activeOpacity={0.85}
+              disabled={loading}
+            >
+              <Text style={styles.primaryBtnText}>
+                {loading ? "Guardando..." : "Guardar"}
+              </Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -160,7 +251,12 @@ export default function ProfileSetupScreen() {
           />
         )}
 
-        <Modal visible={genderOpen} transparent animationType="fade" onRequestClose={() => setGenderOpen(false)}>
+        <Modal
+          visible={genderOpen}
+          transparent
+          animationType="fade"
+          onRequestClose={() => setGenderOpen(false)}
+        >
           <Pressable style={styles.modalBackdrop} onPress={() => setGenderOpen(false)}>
             <View style={styles.modalCard}>
               <Text style={styles.modalTitle}>Selecciona tu género</Text>
@@ -185,6 +281,29 @@ export default function ProfileSetupScreen() {
             </View>
           </Pressable>
         </Modal>
+
+        <ResultModal
+          visible={successOpen}
+          type="success"
+          title="¡Cuenta creada!"
+          subtitle={`Tu registro para ${params.email ?? ""} se completó correctamente.`}
+          primaryLabel="Hecho"
+          onPrimary={() => {
+            setSuccessOpen(false);
+            router.replace("/login");
+          }}
+          onRequestClose={() => setSuccessOpen(false)}
+        />
+
+        <ResultModal
+          visible={errorOpen}
+          type="error"
+          title="No se pudo completar"
+          subtitle={errorMsg}
+          primaryLabel="Cerrar"
+          onPrimary={() => setErrorOpen(false)}
+          onRequestClose={() => setErrorOpen(false)}
+        />
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -258,9 +377,7 @@ const styles = StyleSheet.create({
     display: "flex",
     gap: 16,
   },
-  inputWrapper: {
-    position: "relative",
-  },
+  inputWrapper: { position: "relative" },
   input: {
     height: 50,
     borderRadius: 12,
@@ -272,19 +389,9 @@ const styles = StyleSheet.create({
     color: COLORS.textDark,
     fontSize: 14,
   },
-  inputWithIcon: {
-    paddingLeft: 42,
-  },
-  leftIcon: {
-    position: "absolute",
-    left: 14,
-    top: 16,
-  },
-  rightIcon: {
-    position: "absolute",
-    right: 14,
-    top: 16,
-  },
+  inputWithIcon: { paddingLeft: 42 },
+  leftIcon: { position: "absolute", left: 14, top: 16 },
+  rightIcon: { position: "absolute", right: 14, top: 16 },
   primaryBtn: {
     height: 54,
     borderRadius: 16,
@@ -317,9 +424,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: COLORS.textDark,
   },
-  modalList: {
-    gap: 6,
-  },
+  modalList: { gap: 6 },
   modalItem: {
     paddingVertical: 12,
     paddingHorizontal: 6,
@@ -331,14 +436,61 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: COLORS.textDark,
   },
-  modalCancel: {
-    alignSelf: "center",
-    paddingVertical: 10,
-    paddingHorizontal: 16,
+  modalCancel: { alignSelf: "center", paddingVertical: 10, paddingHorizontal: 16 },
+  modalCancelText: { fontFamily: "Poppins_600SemiBold", color: COLORS.textMid, fontSize: 14 },
+});
+
+/* ---- estilos del modal de resultado (éxito/error) ---- */
+const m = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: "rgba(17,24,39,0.45)", // gris oscuro translúcido
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 24,
   },
-  modalCancelText: {
-    fontFamily: "Poppins_600SemiBold",
-    color: COLORS.textMid,
+  card: {
+    width: "100%",
+    borderRadius: 24,
+    backgroundColor: "#FFFFFF",
+    paddingHorizontal: 22,
+    paddingVertical: 24,
+    alignItems: "center",
+  },
+  iconCircle: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 14,
+  },
+  title: {
+    fontFamily: "Poppins_700Bold",
+    fontSize: 18,
+    color: "#111827",
+    marginBottom: 6,
+    textAlign: "center",
+  },
+  subtitle: {
+    fontFamily: "Poppins_400Regular",
     fontSize: 14,
+    color: "#6B7280",
+    textAlign: "center",
+    marginBottom: 16,
+    lineHeight: 20,
+  },
+  primaryBtn: {
+    width: "70%",
+    height: 46,
+    borderRadius: 14,
+    backgroundColor: "#0F172A",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  primaryText: {
+    color: "#fff",
+    fontFamily: "Poppins_600SemiBold",
+    fontSize: 15,
   },
 });
