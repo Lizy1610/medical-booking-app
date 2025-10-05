@@ -23,6 +23,7 @@ import {
   ImageBackground,
 } from "react-native";
 import { router } from "expo-router";
+
 const W = Dimensions.get("window").width;
 
 export default function HomeScreen() {
@@ -204,7 +205,7 @@ export default function HomeScreen() {
 
         <View style={s.sectionHeader}>
           <Text style={s.sectionTitle}>Centros médicos cercanos</Text>
-          <TouchableOpacity activeOpacity={0.7}>
+          <TouchableOpacity activeOpacity={0.7} onPress={() => router.push("/location")}>
             <Text style={s.seeAll}>Ver todo</Text>
           </TouchableOpacity>
         </View>
@@ -296,10 +297,6 @@ export default function HomeScreen() {
           <View style={s.tabIconActiveBg}>
             <Ionicons name="home" size={18} color="#111827" />
           </View>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={s.tabButton} activeOpacity={0.8}>
-          <Ionicons name="location-outline" size={22} color="#9CA3AF" />
         </TouchableOpacity>
 
         <TouchableOpacity style={s.tabButton} activeOpacity={0.8} onPress={() => router.push("/location")}>
@@ -554,5 +551,4 @@ const s = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-});
 });
