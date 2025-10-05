@@ -16,7 +16,6 @@ import {
   Pressable,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useFonts, Poppins_400Regular, Poppins_600SemiBold, Poppins_700Bold } from "@expo-google-fonts/poppins";
 import {
   useFonts,
   Poppins_400Regular,
@@ -105,8 +104,6 @@ export default function ProfileSetupScreen() {
   };
 
   const onSave = async () => {
-    if (!params.name || !params.email || !params.password) return;
-    if (!nick) return;
     if (!params.name || !params.email || !params.password) {
       setErrorMsg("Faltan datos requeridos del primer paso.");
       setErrorOpen(true);
@@ -129,9 +126,6 @@ export default function ProfileSetupScreen() {
         gender: (gender || undefined) as any,
       };
       await register(payload);
-      router.replace("/login");
-    } catch (e) {
-      alert((e as Error).message);
 
       setSuccessOpen(true);
     } catch (e) {
@@ -147,9 +141,6 @@ export default function ProfileSetupScreen() {
 
   return (
     <SafeAreaView style={styles.safe}>
-      <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={styles.flex}>
-        <View style={styles.headerRow}>
-          <TouchableOpacity onPress={() => router.back()} hitSlop={{ top: 12, right: 12, bottom: 12, left: 12 }}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         style={styles.flex}
@@ -195,8 +186,6 @@ export default function ProfileSetupScreen() {
               />
             </View>
 
-            <TouchableOpacity style={styles.inputWrapper} onPress={() => setShowDate(true)} activeOpacity={0.9}>
-              <Ionicons name="calendar-clear-outline" size={18} color="#9AA3AF" style={styles.leftIcon} />
             <TouchableOpacity
               style={styles.inputWrapper}
               onPress={() => setShowDate(true)}
@@ -219,7 +208,6 @@ export default function ProfileSetupScreen() {
               </View>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.inputWrapper} onPress={() => setGenderOpen(true)} activeOpacity={0.9}>
             <TouchableOpacity
               style={styles.inputWrapper}
               onPress={() => setGenderOpen(true)}
@@ -237,8 +225,6 @@ export default function ProfileSetupScreen() {
               <Ionicons name="chevron-down" size={18} color="#9AA3AF" style={styles.rightIcon} />
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.primaryBtn} onPress={onSave} activeOpacity={0.85}>
-              <Text style={styles.primaryBtnText}>Guardar</Text>
             <TouchableOpacity
               style={[styles.primaryBtn, loading && { opacity: 0.7 }]}
               onPress={onSave}
@@ -265,7 +251,6 @@ export default function ProfileSetupScreen() {
           />
         )}
 
-        <Modal visible={genderOpen} transparent animationType="fade" onRequestClose={() => setGenderOpen(false)}>
         <Modal
           visible={genderOpen}
           transparent
@@ -392,9 +377,6 @@ const styles = StyleSheet.create({
     display: "flex",
     gap: 16,
   },
-  inputWrapper: {
-    position: "relative",
-  },
   inputWrapper: { position: "relative" },
   input: {
     height: 50,
@@ -406,19 +388,6 @@ const styles = StyleSheet.create({
     fontFamily: "Poppins_400Regular",
     color: COLORS.textDark,
     fontSize: 14,
-  },
-  inputWithIcon: {
-    paddingLeft: 42,
-  },
-  leftIcon: {
-    position: "absolute",
-    left: 14,
-    top: 16,
-  },
-  rightIcon: {
-    position: "absolute",
-    right: 14,
-    top: 16,
   },
   inputWithIcon: { paddingLeft: 42 },
   leftIcon: { position: "absolute", left: 14, top: 16 },
@@ -455,9 +424,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: COLORS.textDark,
   },
-  modalList: {
-    gap: 6,
-  },
   modalList: { gap: 6 },
   modalItem: {
     paddingVertical: 12,
@@ -470,15 +436,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: COLORS.textDark,
   },
-  modalCancel: {
-    alignSelf: "center",
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-  },
-  modalCancelText: {
-    fontFamily: "Poppins_600SemiBold",
-    color: COLORS.textMid,
-    fontSize: 14,
   modalCancel: { alignSelf: "center", paddingVertical: 10, paddingHorizontal: 16 },
   modalCancelText: { fontFamily: "Poppins_600SemiBold", color: COLORS.textMid, fontSize: 14 },
 });
