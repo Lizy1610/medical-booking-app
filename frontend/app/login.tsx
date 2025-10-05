@@ -10,24 +10,74 @@ import {
   Platform,
   SafeAreaView,
   ScrollView,
+  Modal,
+  Pressable,
 } from "react-native";
 import { useFonts, Poppins_400Regular, Poppins_600SemiBold, Poppins_700Bold } from "@expo-google-fonts/poppins";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
+import { login, saveToken } from "../src/lib/auth";
+
+/* Modal simple para errores */
+function ErrorModal({
+  visible,
+  message,
+  onClose,
+}: {
+  visible: boolean;
+  message: string;
+  onClose: () => void;
+}) {
+  return (
+    <Modal transparent visible={visible} animationType="fade" onRequestClose={onClose}>
+      <Pressable style={m.overlay} onPress={onClose}>
+        <Pressable style={m.card} onPress={() => {}}>
+          <View style={[m.iconCircle, { backgroundColor: "#FEE2E2" }]}>
+            <Ionicons name="alert" size={36} color="#B91C1C" />
+          </View>
+          <Text style={m.title}>No se pudo iniciar sesión</Text>
+          <Text style={m.subtitle}>{message}</Text>
+          <TouchableOpacity style={m.primaryBtn} onPress={onClose} activeOpacity={0.9}>
+            <Text style={m.primaryText}>Cerrar</Text>
+          </TouchableOpacity>
+        </Pressable>
+      </Pressable>
+    </Modal>
+  );
+}
 
 export default function LoginScreen() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [errOpen, setErrOpen] = useState(false);
+  const [errMsg, setErrMsg] = useState("");
+
   const [fontsLoaded] = useFonts({
     Poppins_400Regular,
     Poppins_600SemiBold,
     Poppins_700Bold,
   });
-
   if (!fontsLoaded) return null;
 
-  const onSignIn = () => {
-    console.log({ email, password });
+  const onSignIn = async () => {
+    if (!email || !password) {
+      setErrMsg("Ingresa tu correo y contraseña.");
+      setErrOpen(true);
+      return;
+    }
+    setLoading(true);
+    try {
+      const res = await login(email.trim(), password);
+      await saveToken(res.token);
+      router.replace("/home");
+    } catch (e: any) {
+      // Mensajes típicos de tu backend: "Credenciales inválidas"
+      setErrMsg(e?.message || "Ocurrió un error al iniciar sesión.");
+      setErrOpen(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -71,8 +121,13 @@ export default function LoginScreen() {
                 />
               </View>
 
-              <TouchableOpacity style={styles.primaryBtn} onPress={onSignIn} activeOpacity={0.85}>
-                <Text style={styles.primaryBtnText}>Iniciar sesión</Text>
+              <TouchableOpacity
+                style={[styles.primaryBtn, loading && { opacity: 0.7 }]}
+                onPress={onSignIn}
+                activeOpacity={0.85}
+                disabled={loading}
+              >
+                <Text style={styles.primaryBtnText}>{loading ? "Ingresando..." : "Iniciar sesión"}</Text>
               </TouchableOpacity>
             </View>
 
@@ -105,6 +160,9 @@ export default function LoginScreen() {
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      {/* Modal de error */}
+      <ErrorModal visible={errOpen} message={errMsg} onClose={() => setErrOpen(false)} />
     </SafeAreaView>
   );
 }
@@ -223,4 +281,59 @@ const styles = StyleSheet.create({
   socialText: { fontFamily: "Poppins_600SemiBold", color: COLORS.textDark, fontSize: 14 },
   link: { fontFamily: "Poppins_400Regular", color: COLORS.link, textAlign: "center", marginTop: 2 },
   footerText: { fontFamily: "Poppins_400Regular", color: COLORS.textMid, textAlign: "center", marginTop: 2 },
+});
+
+/* estilos del modal de error */
+const m = StyleSheet.create({
+  overlay: {
+    flex: 1,
+    backgroundColor: "rgba(17,24,39,0.45)",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 24,
+  },
+  card: {
+    width: "100%",
+    borderRadius: 24,
+    backgroundColor: "#FFFFFF",
+    paddingHorizontal: 22,
+    paddingVertical: 24,
+    alignItems: "center",
+  },
+  iconCircle: {
+    width: 96,
+    height: 96,
+    borderRadius: 48,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 14,
+  },
+  title: {
+    fontFamily: "Poppins_700Bold",
+    fontSize: 18,
+    color: "#111827",
+    marginBottom: 6,
+    textAlign: "center",
+  },
+  subtitle: {
+    fontFamily: "Poppins_400Regular",
+    fontSize: 14,
+    color: "#6B7280",
+    textAlign: "center",
+    marginBottom: 16,
+    lineHeight: 20,
+  },
+  primaryBtn: {
+    width: "70%",
+    height: 46,
+    borderRadius: 14,
+    backgroundColor: "#0F172A",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  primaryText: {
+    color: "#fff",
+    fontFamily: "Poppins_600SemiBold",
+    fontSize: 15,
+  },
 });
