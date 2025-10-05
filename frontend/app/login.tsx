@@ -58,6 +58,11 @@ export default function LoginScreen() {
     Poppins_600SemiBold,
     Poppins_700Bold,
   });
+
+  if (!fontsLoaded) return null;
+
+  const onSignIn = () => {
+    console.log({ email, password });
   if (!fontsLoaded) return null;
 
   const onSignIn = async () => {
@@ -121,6 +126,8 @@ export default function LoginScreen() {
                 />
               </View>
 
+              <TouchableOpacity style={styles.primaryBtn} onPress={onSignIn} activeOpacity={0.85}>
+                <Text style={styles.primaryBtnText}>Iniciar sesión</Text>
               <TouchableOpacity
                 style={[styles.primaryBtn, loading && { opacity: 0.7 }]}
                 onPress={onSignIn}
