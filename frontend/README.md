@@ -37,8 +37,6 @@ a  # (desde la interfaz de Expo)
 - **react-native-maps** – mapas (Google Maps)  
 - **@expo/vector-icons (Ionicons)** – iconografía  
 
-*(Ajusta esta lista a lo que tengas realmente en `package.json`.)*
-
 ---
 
 ## 3) Ejemplo de integración de la API
