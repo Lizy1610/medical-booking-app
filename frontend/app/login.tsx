@@ -12,11 +12,13 @@ import {
   ScrollView,
   Modal,
   Pressable,
+  Alert,
 } from "react-native";
 import { useFonts, Poppins_400Regular, Poppins_600SemiBold, Poppins_700Bold } from "@expo-google-fonts/poppins";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { login, saveToken } from "../src/lib/auth";
+import { apiPost } from "../src/lib/api";
 
 /* Modal simple para errores */
 function ErrorModal({
@@ -52,6 +54,7 @@ export default function LoginScreen() {
   const [loading, setLoading] = useState(false);
   const [errOpen, setErrOpen] = useState(false);
   const [errMsg, setErrMsg] = useState("");
+  const [otpSent, setOtpSent] = useState(false);
 
   const [fontsLoaded] = useFonts({
     Poppins_400Regular,
@@ -60,24 +63,46 @@ export default function LoginScreen() {
   });
   if (!fontsLoaded) return null;
 
-  const onSignIn = async () => {
+  // Función para solicitar OTP para login
+  const requestOTPForLogin = async () => {
     if (!email || !password) {
       setErrMsg("Ingresa tu correo y contraseña.");
       setErrOpen(true);
       return;
     }
+
     setLoading(true);
     try {
-      const res = await login(email.trim(), password);
-      await saveToken(res.token);
-      router.replace("/home");
-    } catch (e: any) {
-      // Mensajes típicos de tu backend: "Credenciales inválidas"
-      setErrMsg(e?.message || "Ocurrió un error al iniciar sesión.");
+      console.log('🔐 Solicitando OTP para login:', { email: email.trim(), purpose: 'login' });
+      
+      const data = await apiPost('/api/auth/request-otp', {
+        email: email.trim(),
+        purpose: 'login',
+      });
+
+      setOtpSent(true);
+      // Redirigir a la pantalla de verificación OTP
+      router.push({
+        pathname: './otp-verification' as any,
+        params: { 
+          email: email.trim(), 
+          purpose: 'login',
+          password: password // Pasamos la contraseña para el login final
+        }
+      });
+    } catch (error) {
+      console.error('❌ Error solicitando OTP para login:', error);
+      setErrMsg((error as any)?.message || "Error enviando el código OTP");
       setErrOpen(true);
     } finally {
       setLoading(false);
     }
+  };
+
+  // Función original de login (ahora no se usa, se usa requestOTPForLogin)
+  const onSignIn = async () => {
+    // Esta función ya no se usa, se reemplazó por requestOTPForLogin
+    console.log("onSignIn ya no se usa, usar requestOTPForLogin");
   };
 
   return (
@@ -123,12 +148,18 @@ export default function LoginScreen() {
 
               <TouchableOpacity
                 style={[styles.primaryBtn, loading && { opacity: 0.7 }]}
-                onPress={onSignIn}
+                onPress={requestOTPForLogin}
                 activeOpacity={0.85}
                 disabled={loading}
               >
-                <Text style={styles.primaryBtnText}>{loading ? "Ingresando..." : "Iniciar sesión"}</Text>
+                <Text style={styles.primaryBtnText}>
+                  {loading ? "Enviando código..." : "Iniciar sesión"}
+                </Text>
               </TouchableOpacity>
+
+              <Text style={styles.otpInfo}>
+                Te enviaremos un código de verificación a tu correo
+              </Text>
             </View>
 
             <View style={styles.dividerRow}>
@@ -254,6 +285,14 @@ const styles = StyleSheet.create({
     color: "#FFFFFF",
     fontFamily: "Poppins_600SemiBold",
     fontSize: 16,
+  },
+  otpInfo: {
+    fontFamily: "Poppins_400Regular",
+    fontSize: 12,
+    color: COLORS.textMid,
+    textAlign: "center",
+    marginTop: 8,
+    lineHeight: 16,
   },
   dividerRow: {
     flexDirection: "row",

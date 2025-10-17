@@ -12,17 +12,11 @@ El objetivo es permitir que los pacientes puedan registrarse, iniciar sesión, b
 - Pagos en línea.
 
 ## Flujo de ramas (GitHub Flow)
-- main: rama principal, siempre estable y lista para producción.
-- Cada nueva función o tarea se desarrolla en una rama feature creada desde main.
-- Cuando la tarea termina, se hace Pull Request y tras ser revisado se une a main.
-
-## Ramas del repositorio
-- main: Rama principal y estable. Contiene la última versión lista para desplegar.
-- auth: Módulo de registro, login y recuperación de contraseña.
-- patient-profile:	Gestión del perfil del paciente (datos personales y médicos).
-- doctor-search:	Búsqueda de médicos y visualización de su información.
-- booking:	Funcionalidad para reservar una cita médica.
-- reschedule-cancel:	Reprogramación y cancelación de citas médicas.
-- appointments-history:	Historial de citas del paciente.
-- notifications	:Notificaciones de recordatorio para citas.
-- payments:	Integración opcional de pagos en línea.
+- **main** → Rama principal, siempre estable y lista para producción.
+- **feature/** → Se utiliza para el desarrollo de nuevas funcionalidades o pantallas.  
+  Ejemplo: `feature/login-screen` o `feature/doctor-profile`.
+- **fix/** → Se usa para corrección de errores.  
+  Ejemplo: `fix/login-validation`.
+- **test/** → Se usa para la implementación y ejecución de pruebas unitarias.
+- Cada nueva funcionalidad o corrección se desarrolla en su respectiva rama creada desde `main`.
+- Al finalizar, se crea un Pull Request hacia `main` y, tras la revisión, se fusiona.

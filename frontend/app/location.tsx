@@ -1,3 +1,4 @@
+
 import { useState, useRef } from "react";
 import MapView, { Marker, PROVIDER_GOOGLE, Region } from "react-native-maps";
 import {
@@ -243,5 +244,4 @@ const s = StyleSheet.create({
     borderColor: "#FFFFFF",
   },
   pinAvatar: { width: 36, height: 36, borderRadius: 18 },
-});
 });

@@ -890,7 +890,7 @@ function PrivacyConsentModal({
 
 // Componente principal
 export default function ProfileSetupScreen() {
-  const params = useLocalSearchParams<{ name?: string; email?: string; password?: string }>();
+  const params = useLocalSearchParams<{ name?: string; email?: string; password?: string; otpCode?: string }>();
   const [nick, setNick] = useState("");
   const [dob, setDob] = useState<Date | null>(null);
   const [showDate, setShowDate] = useState(false);
@@ -998,7 +998,10 @@ export default function ProfileSetupScreen() {
         complianceData: compliance,
         privacyPreferences: privacyPreferences,
       };
+      
+      console.log('📝 Enviando registro con payload:', payload);
       await register(payload);
+      console.log('✅ Registro exitoso');
 
       setSuccessOpen(true);
     } catch (e: any) {
