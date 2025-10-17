@@ -23,11 +23,12 @@ export type LoginResponse = {
 };
 
 export function register(payload: RegisterPayload) {
+  console.log('🔐 Llamando a register con payload:', payload);
   return apiPost<{ message: string }>("/api/auth/register", payload);
 }
 
-export async function login(email: string, password: string) {
-  const data = await apiPost<LoginResponse>("/api/auth/login", { email, password });
+export async function login(email: string, password: string, otpCode: string) {
+  const data = await apiPost<LoginResponse>("/api/auth/login", { email, password, otpCode });
   await saveToken(data.token);
   return data;
 }

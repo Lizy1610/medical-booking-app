@@ -32,12 +32,41 @@ export default function RegisterScreen() {
 
   if (!fontsLoaded) return null;
 
-  const onRegister = () => {
+  const onRegister = async () => {
     if (!name || !email || !password) return;
-    router.push({
-      pathname: "/profile-setup",
-      params: { name, email, password },
-    });
+    
+    try {
+      // Solicitar OTP para registro
+      const response = await fetch('http://192.168.80.213:4000/api/auth/request-otp', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email.trim(),
+          purpose: 'register',
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Redirigir a la pantalla de verificación OTP
+        router.push({
+          pathname: './otp-verification' as any,
+          params: { 
+            email: email.trim(), 
+            purpose: 'register',
+            name: name,
+            password: password
+          }
+        });
+      } else {
+        alert(data.message || "Error enviando el código OTP");
+      }
+    } catch (error) {
+      alert("Error de conexión. Verifica tu internet.");
+    }
   };
 
   return (
