@@ -13,7 +13,18 @@ import { pool } from "./db.js";
 const app = express();
 
 app.use(helmet());
-app.use(cors({ origin: process.env.CORS_ORIGIN || "*" }));
+app.use(cors({ 
+  origin: [
+    "http://localhost:3000",
+    "http://10.0.2.2:4000",
+    "http://192.168.80.213:4000",  // Reemplaza con tu IP real
+    "http://192.168.80.213:8081", // Tu IP del emulador
+    "exp://192.168.80.213:8081",  // Para Expo
+    "*"  // Temporal para desarrollo
+  ],
+  credentials: true
+}));
+
 app.use(express.json({ limit: "1mb" }));
 
 const limiter = rateLimit({ windowMs: 15 * 60 * 1000, limit: 200 });
@@ -51,8 +62,8 @@ if (hasTLS) {
     { key: fs.readFileSync(keyPath), cert: fs.readFileSync(certPath) },
     app
   );
-  server.listen(port, () => console.log(`HTTPS en https://localhost:${port}`));
+  server.listen(port, '0.0.0.0', () => console.log(`HTTPS en https://localhost:${port}`));
 } else {
   const server = http.createServer(app);
-  server.listen(port, () => console.log(`HTTP en http://localhost:${port}`));
+  server.listen(port, '0.0.0.0', () => console.log(`HTTP en http://localhost:${port}`));
 }

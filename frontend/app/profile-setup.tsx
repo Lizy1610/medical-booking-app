@@ -69,7 +69,7 @@ function ResultModal({
 }
 
 export default function ProfileSetupScreen() {
-  const params = useLocalSearchParams<{ name?: string; email?: string; password?: string }>();
+  const params = useLocalSearchParams<{ name?: string; email?: string; password?: string; otpCode?: string }>();
   const [nick, setNick] = useState("");
   const [dob, setDob] = useState<Date | null>(null);
   const [showDate, setShowDate] = useState(false);
@@ -123,15 +123,25 @@ export default function ProfileSetupScreen() {
         email: String(params.email),
         password: String(params.password),
         dateOfBirth: dob ? dob.toISOString().slice(0, 10) : undefined,
-        gender: (gender || undefined) as any,
+        gender: (gender as "Hombre" | "Mujer" | "Prefiero no decirlo" | "Otro") || undefined,
       };
+      
+      console.log('📝 Enviando registro con payload:', payload);
       await register(payload);
+      console.log('✅ Registro exitoso');
 
       setSuccessOpen(true);
     } catch (e) {
-      const msg =
-        (e as any)?.message ||
-        "Ocurrió un problema al registrar tu cuenta. Inténtalo de nuevo.";
+      console.log("Error completo:", e);
+      const error = e as any;
+      let msg = "Ocurrió un problema al registrar tu cuenta. Inténtalo de nuevo.";
+      
+      if (error?.message) {
+        msg = error.message;
+      } else if (error?.errors && Array.isArray(error.errors)) {
+        msg = error.errors.map((err: any) => err.msg || err.message).join(", ");
+      }
+      
       setErrorMsg(msg);
       setErrorOpen(true);
     } finally {
